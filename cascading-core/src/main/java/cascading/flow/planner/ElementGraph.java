@@ -50,7 +50,7 @@ import cascading.util.Util;
 import cascading.util.Version;
 import org.jgrapht.GraphPath;
 import org.jgrapht.Graphs;
-import org.jgrapht.alg.KShortestPaths;
+import org.jgrapht.alg.FloydWarshallShortestPaths;
 import org.jgrapht.ext.EdgeNameProvider;
 import org.jgrapht.ext.IntegerNameProvider;
 import org.jgrapht.ext.VertexNameProvider;
@@ -87,6 +87,8 @@ public class ElementGraph extends SimpleDirectedGraph<FlowElement, Scope>
   /** Field assertionLevel */
   private PlannerLevel[] plannerLevels;
 
+  private FloydWarshallShortestPaths shortestPaths;
+
   ElementGraph()
     {
     super( Scope.class );
@@ -105,6 +107,8 @@ public class ElementGraph extends SimpleDirectedGraph<FlowElement, Scope>
 
     Graphs.addAllVertices( this, elementGraph.vertexSet() );
     Graphs.addAllEdges( this, elementGraph, elementGraph.edgeSet() );
+    System.err.println("Constructing FW shortest paths\n");
+    this.shortestPaths = new FloydWarshallShortestPaths(this);
     }
 
   /**
@@ -128,6 +132,8 @@ public class ElementGraph extends SimpleDirectedGraph<FlowElement, Scope>
     assembleGraph( pipes, sources, sinks );
 
     verifyGraph();
+    System.err.println("Constructing FW shortest paths\n");
+    this.shortestPaths = new FloydWarshallShortestPaths(this);
     }
 
   public Map<String, Tap> getSourceMap()
@@ -379,7 +385,10 @@ public class ElementGraph extends SimpleDirectedGraph<FlowElement, Scope>
    */
   public List<GraphPath<FlowElement, Scope>> getAllShortestPathsFrom( FlowElement flowElement )
     {
-    return ElementGraphs.getAllShortestPathsBetween( this, flowElement, tail );
+        // return ElementGraphs.getAllShortestPathsBetween( this, flowElement, tail );
+        List<GraphPath<FlowElement, Scope>> result = new ArrayList<GraphPath<FlowElement, Scope>>();
+        result.add(shortestPaths.getShortestPath(flowElement, tail));
+        return result;
     }
 
   /**
@@ -390,7 +399,9 @@ public class ElementGraph extends SimpleDirectedGraph<FlowElement, Scope>
    */
   public List<GraphPath<FlowElement, Scope>> getAllShortestPathsTo( FlowElement flowElement )
     {
-    return ElementGraphs.getAllShortestPathsBetween( this, head, flowElement );
+        List<GraphPath<FlowElement, Scope>> result = new ArrayList<GraphPath<FlowElement, Scope>>();
+        result.add(shortestPaths.getShortestPath(head, flowElement));
+        return result;
     }
 
   /**
@@ -400,12 +411,14 @@ public class ElementGraph extends SimpleDirectedGraph<FlowElement, Scope>
    */
   public List<GraphPath<FlowElement, Scope>> getAllShortestPathsBetweenExtents()
     {
-    List<GraphPath<FlowElement, Scope>> paths = new KShortestPaths<FlowElement, Scope>( this, head, Integer.MAX_VALUE ).getPaths( tail );
+        List<GraphPath<FlowElement, Scope>> result = new ArrayList<GraphPath<FlowElement, Scope>>();
+        result.add(shortestPaths.getShortestPath(head, tail));
+        return result;
 
-    if( paths == null )
-      return new ArrayList<GraphPath<FlowElement, Scope>>();
+        //    if( paths == null )
+        //      return new ArrayList<GraphPath<FlowElement, Scope>>();
 
-    return paths;
+        //    return paths;
     }
 
   /**

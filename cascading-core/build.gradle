@@ -19,7 +19,8 @@
  */
 
 dependencies {
-  compile group: 'thirdparty', name: 'jgrapht-jdk1.6', version: '0.8.1'
+  compile group: 'net.sf.jgrapht', name: 'jgrapht-core', version: '0.8.3-SNAPSHOT'
+  compile group: 'net.sf.jgrapht', name: 'jgrapht-ext', version: '0.8.3-SNAPSHOT'
   compile group: 'riffle', name: 'riffle', version: '0.1-dev'
   compile group: 'org.codehaus.janino', name: 'janino', version: '2.6.1'
 
