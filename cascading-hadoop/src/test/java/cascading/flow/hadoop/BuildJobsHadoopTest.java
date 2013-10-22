@@ -1868,4 +1868,4 @@ public class BuildJobsHadoopTest extends CascadingTestCase
     }
   }
 
-}
+
